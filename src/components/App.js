@@ -1,28 +1,49 @@
 import React, { Component } from "react";
 
-import Deck from "../classes/Deck";
+import Poker from "../classes/Poker";
 import '../styles/App.css';
 
-const deck = new Deck;
+const poker = new Poker;
 class App extends Component {
 
     state = {
-        deck
+        poker,
+        countToChoose: 2,
+        result: []
     }
 
-    setDeckState() {
-        const deck = this.state.deck;
-        this.setState({ deck });
+    startNewGame() {
+        this.state.poker = new Poker;
+        this.setPokerState();
+    }
+
+    setPokerState() {
+        const poker = this.state.poker;
+        this.setState({ poker });
     }
 
     shuffleCards() {
-        this.state.deck.shuffleCards();
-        this.setDeckState();
+        this.state.poker.deck.shuffleCards();
+        this.setPokerState();
     }
 
     chooseCards(count) {
-        this.state.deck.getCards(count);
-        this.setDeckState();
+        this.state.poker.deck.getCards(count);
+        this.setPokerState();
+    }
+
+    onChangeInput({target: { value }}) {
+        this.setState({countToChoose: value });
+    }
+
+    checkStraightFlush() {
+        const result = this.state.poker.checkStraightFlush(this.state.poker.deck.chosenCards);
+        if ( result ) {
+            this.setState({ result });
+        } else {
+            this.setState({ result: [] });
+        }
+        
     }
 
     render() {
@@ -31,19 +52,40 @@ class App extends Component {
             <div>
                 <h1>PoHER</h1>
 
-                <h2>Choosen Cards:</h2>
+                <h2>Chosen Cards:</h2>
                 {
-                    this.state.deck.choosenCards.map((card) =>
+                    this.state.poker.deck.chosenCards.map((card) =>
 
                         <p>{ card.suit }, { card.faceValue }</p>
                     )
                 }
-                <button onClick = { this.chooseCards.bind(this, 2) } > CHOOSE CARDS </button>
+                <input type = "number" onChange={ this.onChangeInput.bind(this) }></input>
+                <button onClick = { this.chooseCards.bind(this, this.state.countToChoose) } > CHOOSE CARDS </button>
+
+
+                <button onClick = {this.checkStraightFlush.bind(this)}> CHECK FLUSH</button>
+
+                <h2>RESULT</h2>
+
+                {
+                    this.state.result.map((card) =>
+
+                        <p>{ card.suit }, { card.faceValue }</p>
+                    )
+
+                }
+
+                <h2>TABLE : </h2>
+                {
+                    this.state.poker.tableCards.map((card) =>
+                        <p>{ card.suit }, { card.faceValue }</p>
+                    )
+                }
 
 
                 <h2>Deck:</h2>
                 {
-                    this.state.deck.cards.map((card) =>
+                    this.state.poker.deck.cards.map((card) =>
 
                         <p>{ card.suit }, { card.faceValue }</p>
                     )

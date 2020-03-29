@@ -28,7 +28,7 @@ export default class Deck {
         ];
 
         this.cards = this.createDeck();
-        this.choosenCards = [];
+        this.chosenCards = [];
     }
 
     // новая колода из всех возможных карт
@@ -38,10 +38,28 @@ export default class Deck {
 
         this._cardsFaceValue.forEach((faceValue) => {
 
-            this._cardsSuit.forEach((suit) => {
+            let weight;
+
+            switch(faceValue) {
+                case "Ace":
+                    weight = 14; break;
+                case "King":
+                    weight = 13; break;
+                case "Queen":
+                    weight = 12; break;
+                case "Jack":
+                    weight = 11; break;
+                default:
+                    weight = +faceValue;
+                    break;
+            }
+
+            this._cardsSuit.forEach((suit) => { 
+
                 const newCard = {
                     faceValue,
-                    suit
+                    suit,
+                    weight
                 }
 
                 newDeck.push(newCard);
@@ -58,9 +76,10 @@ export default class Deck {
 
     // берет из колоды указанное кол-во карт
     getCards(count) {
-        const choosenCards = this.chooseCards(count);
-        this.choosenCards.push(...choosenCards);
-        this.removeCardsFromDeck(choosenCards);
+        const chosenCards = this.chooseCards(count);
+        this.chosenCards.push(...chosenCards);
+        this.removeCardsFromDeck(chosenCards);
+        return chosenCards;
     }
 
     // выбирает в колоде указанное кол-во карт
