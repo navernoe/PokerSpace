@@ -3,48 +3,110 @@ import React, { Component } from "react";
 import Poker from "../classes/Poker";
 import '../styles/App.css';
 
-const poker = new Poker;
+function Card(props) {
+    return (
+        <li>{props.suit} {props.faceValue}</li>
+    );
+}
+
 class App extends Component {
 
-    state = {
-        poker,
-        countToChoose: 2,
-        result: []
-    }
-
-    startNewGame() {
-        this.state.poker = new Poker;
-        this.setPokerState();
-    }
+    state = {}
 
     setPokerState() {
         const poker = this.state.poker;
         this.setState({ poker });
     }
 
-    shuffleCards() {
-        this.state.poker.deck.shuffleCards();
-        this.setPokerState();
+    startNewGame() {
+        const players = this.createNewPlayers();
+        const poker = new Poker(players);
+
+        this.setState({ poker });
     }
 
-    chooseCards(count) {
-        this.state.poker.deck.getCards(count);
-        this.setPokerState();
+    createNewPlayers() {
+        return [
+            {
+                name: "Player1"
+            },
+            {
+                name: "Player2"
+            },
+            {
+                name: "Player3"
+            },
+            {
+                name: "Player4"
+            },
+            {
+                name: "Player5"
+            }
+
+        ];
     }
 
-    onChangeInput({target: { value }}) {
-        this.setState({countToChoose: value });
-    }
+    renderTable() {
 
-    checkStraightFlush() {
-        const result = this.state.poker.checkStraightFlush(this.state.poker.deck.chosenCards);
-        if ( result ) {
-            this.setState({ result });
-        } else {
-            this.setState({ result: [] });
+        if ( !this.state.poker ) {
+            return "";
         }
-        
+
+        const tableElements = this.state.poker.tableCards.reduce((elements, card) => {
+            return [
+                ...elements,
+                React.createElement(
+                    "div",
+                    {className: "tableCard"},
+                    `${card.suit} ${card.faceValue}`
+                )
+            ];
+        }, []);
+
+        return tableElements
     }
+
+    renderPlayers() {
+
+        if ( !this.state.poker ) {
+            return "";
+        }
+
+        const playersElements = this.state.poker.players.reduce((elements, player) => {
+            const newPlayerEl = React.createElement(
+                "div",
+                { className: "player" },
+                [
+                    React.createElement(
+                        "div",
+                        {className: "player-info"},
+                        player.name
+                    ),
+
+                    React.createElement(
+                        "div",
+                        {className: "player-cards"},
+                        React.createElement(
+                            "ul",
+                            {className: ""},
+                            player.cards ? player.cards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : ""
+                        )
+                    )
+                ]
+            );
+
+            return [...elements, newPlayerEl];
+        }, []);
+
+        return playersElements;
+    }
+
+
+    goNext() {
+        this.state.poker.goNextStep();
+        this.setPokerState();
+    }
+
 
     render() {
 
@@ -52,45 +114,19 @@ class App extends Component {
             <div>
                 <h1>PoHER</h1>
 
-                <h2>Chosen Cards:</h2>
+                <button className = "startBtn" onClick = {this.startNewGame.bind(this)}> STARRT NEW GAME</button>
+
+                <h2>TABLE:</h2>
                 {
-                    this.state.poker.deck.chosenCards.map((card) =>
-
-                        <p>{ card.suit }, { card.faceValue }</p>
-                    )
-                }
-                <input type = "number" onChange={ this.onChangeInput.bind(this) }></input>
-                <button onClick = { this.chooseCards.bind(this, this.state.countToChoose) } > CHOOSE CARDS </button>
-
-
-                <button onClick = {this.checkStraightFlush.bind(this)}> CHECK FLUSH</button>
-
-                <h2>RESULT</h2>
-
-                {
-                    this.state.result.map((card) =>
-
-                        <p>{ card.suit }, { card.faceValue }</p>
-                    )
-
+                    this.renderTable()
                 }
 
-                <h2>TABLE : </h2>
+                <h2>Players:</h2>
                 {
-                    this.state.poker.tableCards.map((card) =>
-                        <p>{ card.suit }, { card.faceValue }</p>
-                    )
+                    this.renderPlayers()
                 }
 
-
-                <h2>Deck:</h2>
-                {
-                    this.state.poker.deck.cards.map((card) =>
-
-                        <p>{ card.suit }, { card.faceValue }</p>
-                    )
-                }
-                <button onClick = { this.shuffleCards.bind(this) } > SHUFFLE! </button>
+                <button className = "goNextBtn" onClick = {this.goNext.bind(this)}> GO NEXT STEP</button>
 
             </div>
         );
