@@ -91,6 +91,22 @@ class App extends Component {
                             {className: ""},
                             player.cards ? player.cards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : ""
                         )
+                    ),
+
+                    React.createElement(
+                        "div",
+                        {className: "player-bestcombination"},
+                        React.createElement(
+                            "ul",
+                            {className: ""},
+                            [
+                                player.bestCombination ? player.bestCombination.name : "",
+                                player.bestCombination ? player.bestCombination.cards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : "",
+                                player.bestCombination && player.bestCombination.highCards ? player.bestCombination.highCards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : ""
+
+                            ] 
+                            
+                        )
                     )
                 ]
             );

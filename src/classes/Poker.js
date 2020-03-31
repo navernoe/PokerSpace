@@ -9,10 +9,6 @@ export default class Poker {
         this.deck = new Deck;
         this.players = players;
         this.tableCards = [];
-
-        this._combinationsRating = {
-
-        }
     }
 
     goNextStep() {
