@@ -326,7 +326,7 @@ export default {
         return {
             name: "Straight",
             cards: bestStraight,
-            weigth: 5
+            weight: 5
         };
     },
 
@@ -350,7 +350,11 @@ export default {
         if ( groups.length === 1 ) {
             flush = _.sortBy(groups[0], "weight");
             flush.splice(0, flush.length - 5);
-            return flush;
+            return {
+                name: "Flush",
+                cards: flush,
+                weight: 6
+            };
         }
 
         // если всего 7 карт (2 в руке и 5 на столе) -
