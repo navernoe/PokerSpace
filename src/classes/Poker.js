@@ -1,71 +1,126 @@
 import _ from "lodash";
 import Deck from "./Deck";
-import check from "./combinationChecker";
+import PlayersManager from "./PlayersManager";
 
 export default class Poker {
 
     constructor(players) {
-        this.status = "pre-flop";
+        this.status = "start";
         this.deck = new Deck;
-        this.players = players;
         this.tableCards = [];
+        this.playersManager = new PlayersManager(players);
     }
 
-    goNextStep() {
-        
+    setStatus(status) {
+        this.status = status;
+    }
+
+    goNextStep(isFirst = false) {
         switch(this.status) {
+            case "start":
+                this.start(); break;
             case "pre-flop":
-                this.preFlop(); break;
+                this.preFlop(isFirst); break;
             case "flop":
-                this.flop(); break;
+                this.flop(isFirst); break;
             case "tern":
-                this.tern(); break;
+                this.tern(isFirst); break;
             case "river":
-                this.river(); break;
+                this.river(isFirst); break;
             case "end":
-                this.checkResults(); break;
+                this.playersManager.checkResults(this.tableCards);
+                break;
+        }
+    }
+
+    start() {
+        this.clearTable();
+        this.playersManager.resetGame();
+        this.deck.createNewDeck();
+        this.deck.shuffleCards();
+        this.playersManager.setDealer();
+
+        this.setStatus("pre-flop");
+        this.goNextStep(true);
+    }
+
+
+    preFlop(isFirst) {
+
+        // блайнды и раздача только один раз
+        if ( isFirst ) {
+            this.playersManager.setBlinds();
+            this.playersManager.dealTheCards(this.deck);
+            this.playersManager.doBets();
+        }
+
+        if ( this.playersManager.isAllBetsEqual() && !this.playersManager.isCompletePot ) {
+            this.playersManager.setPot();
+            this.setStatus("flop");
+            this.goNextStep(true);
+        } else {
+            this.playersManager.doBets();
+        }
+    }
+
+    flop(isFirst) {
+
+        if ( isFirst ) { // раздача только один раз
+            this.playersManager.isCompletePot = false;
+            const flopCardsCount = 3;
+            const flopCards = this.deck.getCards(flopCardsCount);
+            this.tableCards.push(...flopCards);
+        }
+
+        if ( this.playersManager.isAllBetsEqual() && !this.playersManager.isCompletePot ) {
+            this.playersManager.setPot();
+            this.setStatus("tern");
+            this.goNextStep(true);
+        } else {
+            this.playersManager.doBets();
         }
 
     }
 
-    preFlop() {
-        this.deck.shuffleCards();
+    tern(isFirst) {
 
-        const cardsToGiveCount = 2;
-        this.players.forEach((player) => {
-            player.cards = this.deck.getCards(cardsToGiveCount);
-        });
+        if ( isFirst ) { // раздача только один раз
+            this.playersManager.isCompletePot = false;
+            const ternCardsCount = 1;
+            const ternCards = this.deck.getCards(ternCardsCount);
+            this.tableCards.push(...ternCards);
+        }
 
-        this.status = "flop";
+        if ( this.playersManager.isAllBetsEqual() && !this.playersManager.isCompletePot ) {
+            this.playersManager.setPot();
+            this.setStatus("river");
+            this.goNextStep(true);
+        } else {
+            this.playersManager.doBets();
+        }
     }
 
-    flop() {
-        const flopCardsCount = 3;
-        const flopCards = this.deck.getCards(flopCardsCount);
-        this.tableCards.push(...flopCards);
-        this.status = "tern"
+    river(isFirst) {
+
+        if ( isFirst ) { // раздача только один раз
+            this.playersManager.isCompletePot = false;
+            const riverCardsCount = 1;
+            const riverCards = this.deck.getCards(riverCardsCount);
+            this.tableCards.push(...riverCards);
+        }
+
+        if ( this.playersManager.isAllBetsEqual() && !this.playersManager.isCompletePot ) {
+            this.playersManager.setPot();
+            this.setStatus("end");
+            this.goNextStep();
+        } else {
+            this.playersManager.doBets();
+        }
     }
 
-    tern() {
-        const ternCardsCount = 1;
-        const ternCards = this.deck.getCards(ternCardsCount);
-        this.tableCards.push(...ternCards);
-        this.status = "river";
-    }
 
-    river() {
-        const riverCardsCount = 1;
-        const riverCards = this.deck.getCards(riverCardsCount);
-        this.tableCards.push(...riverCards);
-        this.status = "end";
-    }
-
-    checkResults() {
-        this.players.forEach((player) => {
-            const playerCards = player.cards;
-            const cards = playerCards.concat(this.tableCards);
-            player.bestCombination = check.findBestCombination(cards);
-        });
+    clearTable() {
+        this.tableCards = [];
     }
 
 

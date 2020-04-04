@@ -9,50 +9,52 @@ function Card(props) {
     );
 }
 
+const createNewPlayers = () => {
+    return [
+        {
+            name: "Player1"
+        },
+        {
+            name: "Player2"
+        },
+        {
+            name: "Player3"
+        },
+        {
+            name: "Player4"
+        },
+        {
+            name: "Player5",
+            isRealMan: true
+        }
+
+    ];
+}
+
+const players = createNewPlayers();
+const poker = new Poker(players);
+const playersManager = poker.playersManager;
+const realPlayer = playersManager.players.find((player) => player.isRealMan);
+
 class App extends Component {
 
-    state = {}
+    state = {
+        poker,
+        players: playersManager.players
+    }
 
     setPokerState() {
-        const poker = this.state.poker;
-        this.setState({ poker });
+        const players = playersManager.players;
+        this.setState({ poker,  players });
     }
 
     startNewGame() {
-        const players = this.createNewPlayers();
-        const poker = new Poker(players);
-
-        this.setState({ poker });
-    }
-
-    createNewPlayers() {
-        return [
-            {
-                name: "Player1"
-            },
-            {
-                name: "Player2"
-            },
-            {
-                name: "Player3"
-            },
-            {
-                name: "Player4"
-            },
-            {
-                name: "Player5"
-            }
-
-        ];
+        this.state.poker.start();
+        this.setPokerState();
     }
 
     renderTable() {
-
-        if ( !this.state.poker ) {
-            return "";
-        }
-
-        const tableElements = this.state.poker.tableCards.reduce((elements, card) => {
+        const tableElements = poker.tableCards.reduce((elements, card) => {
             return [
                 ...elements,
                 React.createElement(
@@ -61,25 +63,30 @@ class App extends Component {
                     `${card.suit} ${card.faceValue}`
                 )
             ];
-        }, []);
+        }, [
+            React.createElement(
+                "div",
+                {className: "pot"},
+                `POT: ${playersManager.pot}`
+            )
+        ]);
 
         return tableElements
     }
 
     renderPlayers() {
 
-        if ( !this.state.poker ) {
-            return "";
-        }
+        const playersElements = this.state.players.reduce((elements, player) => {
 
-        const playersElements = this.state.poker.players.reduce((elements, player) => {
+            const infoClassName = player.isDealer ? { className: "player-info dealer" } : {className: "player-info"};
+
             const newPlayerEl = React.createElement(
                 "div",
                 { className: "player" },
                 [
                     React.createElement(
                         "div",
-                        {className: "player-info"},
+                        infoClassName,
                         player.name
                     ),
 
@@ -95,13 +102,19 @@ class App extends Component {
 
                     React.createElement(
                         "div",
+                        {className: "player-bet"},
+                        player.bet
+                    ),
+
+                    React.createElement(
+                        "div",
                         {className: "player-bestcombination"},
                         React.createElement(
                             "ul",
                             {className: ""},
                             [
                                 player.bestCombination ? player.bestCombination.name : "",
-                                player.bestCombination ? player.bestCombination.cards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : "",
+                                player.bestCombination && player.bestCombination.cards ? player.bestCombination.cards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : "",
                                 player.bestCombination && player.bestCombination.highCards ? player.bestCombination.highCards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : ""
 
                             ] 
@@ -118,11 +131,19 @@ class App extends Component {
     }
 
 
-    goNext() {
-        this.state.poker.goNextStep();
+    doAction(action) {
+
+        let raiseSum;
+
+        if ( action === "raise" ) {
+            raiseSum = +document.querySelector(".betSum").value;
+        }
+
+        playersManager[action](realPlayer, raiseSum);
+        poker.goNextStep();
+
         this.setPokerState();
     }
-
 
     render() {
 
@@ -142,7 +163,11 @@ class App extends Component {
                     this.renderPlayers()
                 }
 
-                <button className = "goNextBtn" onClick = {this.goNext.bind(this)}> GO NEXT STEP</button>
+                <input className = "betSum" type="number"></input>
+                <button className = "checkBtn" onClick = {this.doAction.bind(this, "check")}> CHECK </button>
+                <button className = "callBtn" onClick = {this.doAction.bind(this, "call")}> CALL </button>
+                <button className = "raiseBtn" onClick = {this.doAction.bind(this, "raise")}> RAISE </button>
+                <button className = "foldBtn" onClick = {this.doAction.bind(this, "fold")}> FOLD </button>
 
             </div>
         );

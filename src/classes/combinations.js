@@ -66,8 +66,9 @@ export default {
         }
 
         const sortedCards = _.sortBy(cards, "weight");
-        const startToSplice = sortedCards.length - count;
-        const highCards = sortedCards.splice(startToSplice, count);
+        const uniqSortedCards = _.sortedUniqBy(sortedCards, "weight");
+        const startToSplice = uniqSortedCards.length - count;
+        const highCards = uniqSortedCards.splice(startToSplice, count);
 
         return highCards;
     },

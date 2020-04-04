@@ -27,12 +27,11 @@ export default class Deck {
             "2"
         ];
 
-        this.cards = this.createDeck();
         this.chosenCards = [];
     }
 
     // новая колода из всех возможных карт
-    createDeck() {
+    createNewDeck() {
 
         const newDeck = [];
 
@@ -66,7 +65,7 @@ export default class Deck {
             });
         });
 
-        return newDeck;
+        this.cards = newDeck;
     }
 
     // перемешивает колоду
