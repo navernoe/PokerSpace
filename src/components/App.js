@@ -114,14 +114,20 @@ class App extends Component {
                             "ul",
                             {className: ""},
                             [
-                                player.bestCombination ? player.bestCombination.name : "",
+                                player.bestCombination ? "Best comb: " + player.bestCombination.name : "",
                                 player.bestCombination && player.bestCombination.cards ? player.bestCombination.cards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : "",
                                 player.bestCombination && player.bestCombination.highCards ? player.bestCombination.highCards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : ""
 
                             ] 
                             
                         )
-                    )
+                    ),
+
+                    React.createElement(
+                        "div",
+                        {className: "player-stack"},
+                        "stack: " + player.chipsStack
+                    ),
                 ]
             );
 

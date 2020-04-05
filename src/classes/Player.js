@@ -3,14 +3,14 @@ export default class Player {
     constructor(name, isRealMan = false) {
         this.name = name;
         this.isRealMan = isRealMan;
-        this.chipStack = 1000;
+        this.chipsStack = 1000;
         this.bet = 0;
         this.status = "awaiting"; // в ожидании своего хода
     }
 
 
     setBet(bet) {
-        this.chipStack -= bet;
+        this.chipsStack -= bet;
         this.bet += bet;
     }
 

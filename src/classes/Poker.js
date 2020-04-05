@@ -28,7 +28,7 @@ export default class Poker {
             case "river":
                 this.river(isFirst); break;
             case "end":
-                this.playersManager.checkResults(this.tableCards);
+                this.playersManager.final(this.tableCards);
                 break;
         }
     }

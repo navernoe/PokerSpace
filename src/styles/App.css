@@ -28,6 +28,10 @@ h2 {
     color: red;
 }
 
+.player-stack {
+    border: 1px solid orchid;
+}
+
 .player-bestcombination {
     color: green;
 }

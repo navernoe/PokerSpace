@@ -170,14 +170,30 @@ export default class PlayersManager {
         });
     }
 
-    checkResults(tableCards) {
-        this.setBestCombination(tableCards);
+    getWinners() {
         const winningComb = _.maxBy(this.players, "bestCombination.weight").bestCombination;
         const winners = this.players.filter((player) =>
             player.bestCombination.weight === winningComb.weight
         );
 
+        return winners;
+    }
+
+    setWinners(winners) {
         winners.forEach((winner) => winner.isWinner = true);
+    }
+
+    sharePot(winners) {
+        const sharingSum = this.pot / winners.length;
+        this.pot = 0;
+        winners.forEach(winner => winner.chipsStack += sharingSum);
+    }
+
+    final(tableCards) {
+        this.setBestCombination(tableCards);
+        const winners = this.getWinners();
+        this.setWinners(winners);
+        this.sharePot(winners);
     }
 
     // когда ставки равны - они собираются в пот
