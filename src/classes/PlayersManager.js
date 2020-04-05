@@ -16,7 +16,6 @@ export default class PlayersManager {
     }
 
     setBlinds() {
-
         this.players.forEach((player) => {
             // если playerInBetQueue уже есть -
             // значит дилера уже назначили и блайнды сделали

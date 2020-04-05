@@ -18,7 +18,8 @@ const createNewPlayers = () => {
             name: "Player2"
         },
         {
-            name: "Player3"
+            name: "Player3",
+            isRealMan: true
         },
         {
             name: "Player4"
@@ -34,7 +35,7 @@ const createNewPlayers = () => {
 const players = createNewPlayers();
 const poker = new Poker(players);
 const playersManager = poker.playersManager;
-const realPlayer = playersManager.players.find((player) => player.isRealMan);
+const realPlayer = () => playersManager.playerInBetQueue;
 
 class App extends Component {
 
@@ -146,7 +147,7 @@ class App extends Component {
             raiseSum = +document.querySelector(".betSum").value;
         }
 
-        playersManager[action](realPlayer, raiseSum);
+        playersManager[action](realPlayer(), raiseSum);
         poker.goNextStep();
 
         this.setPokerState();
