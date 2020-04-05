@@ -79,10 +79,11 @@ class App extends Component {
         const playersElements = this.state.players.reduce((elements, player) => {
 
             const infoClassName = player.isDealer ? { className: "player-info dealer" } : {className: "player-info"};
+            const playerClassName = player.isWinner ? { className: "player winner" } : { className: "player" };
 
             const newPlayerEl = React.createElement(
                 "div",
-                { className: "player" },
+                playerClassName,
                 [
                     React.createElement(
                         "div",

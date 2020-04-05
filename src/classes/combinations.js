@@ -1,5 +1,18 @@
 export default {
 
+    combinationsWeights: {
+        RoyalFlush: 10,
+        StraightFlush: 9,
+        Quads: 8,
+        FullHouse: 7,
+        Flush: 6,
+        Straight: 5,
+        Trips: 4,
+        TwoPairs: 3,
+        Pair: 2,
+        HighCards: 1
+    },
+
     findBestCombination(cards) {
 
         const royalFlush = this.checkRoyalFlush(cards);
@@ -54,7 +67,7 @@ export default {
         return {
             name: "HighCards",
             cards: highCards,
-            weight: 1
+            weight: this.combinationsWeights.HighCards
         };
     },
 
@@ -75,6 +88,7 @@ export default {
 
 
     checkByWeight(cards) {
+        let resultCombination;
         let groups = [];
         const weightGroups = _.groupBy(cards, "weight");
 
@@ -93,12 +107,13 @@ export default {
                 excludeCards: bestQuads
             });
 
-            return {
+            resultCombination = {
                 name: "Quads",
                 cards: bestQuads,
-                highCards,
-                weight: 8
+                highCards
             };
+            resultCombination.weight = this.getCombinationWeight(resultCombination);
+            return resultCombination;
         }
 
         let trips = groups.filter((group) => group.length === 3);
@@ -112,11 +127,12 @@ export default {
             const bestPair = pairs[pairs.length - 1];
             const bestFullHouse = [...bestTrip, ...bestPair];
 
-            return {
+            resultCombination = {
                 name: "FullHouse",
-                cards: bestFullHouse,
-                weight: 7
+                cards: bestFullHouse
             };
+            resultCombination.weight = this.getCombinationWeight(resultCombination);
+            return resultCombination;
         }
 
         if ( trips.length ) {
@@ -128,12 +144,13 @@ export default {
                 excludeCards: bestTrip
             });
 
-            return {
+            resultCombination = {
                 name: "Trips",
                 cards: trips[trips.length - 1],
-                highCards,
-                weight: 4
+                highCards
             };
+            resultCombination.weight = this.getCombinationWeight(resultCombination);
+            return resultCombination;
         }
 
         if ( pairs.length ) {
@@ -148,12 +165,13 @@ export default {
                     excludeCards: bestTwoPairsCards
                 });
 
-                return {
+                resultCombination = {
                     name: "TwoPairs",
                     cards: bestTwoPairsCards,
-                    highCards,
-                    weight: 3
+                    highCards
                 };
+                resultCombination.weight = this.getCombinationWeight(resultCombination);
+                return resultCombination;
             }
 
             const bestPair = pairs[pairs.length - 1];
@@ -163,12 +181,13 @@ export default {
                 excludeCards: bestPair
             })
 
-            return {
+            resultCombination = {
                 name: "Pair",
                 cards: bestPair,
-                highCards,
-                weight: 2
-            }
+                highCards
+            };
+            resultCombination.weight = this.getCombinationWeight(resultCombination);
+            return resultCombination;
         }
 
         return false;
@@ -248,7 +267,7 @@ export default {
 
             return {
                 name: "RoyalFlush",
-                weight: 10
+                weight: this.combinationsWeights.RoyalFlush
             };
 
         } else {
@@ -259,7 +278,7 @@ export default {
 
 
     checkStraightFlush(cards) {
-
+        let resultCombination;
         let groups = [];
         const suitsGroups = _.groupBy(cards, (card) => card.suit);
 
@@ -283,11 +302,14 @@ export default {
             return false;
         }
 
-        return {
+        resultCombination = {
             name: "StraightFlush",
-            cards: _.maxBy(straightFlushGroups, (group) => _.maxBy(group, "weight")),
-            weight: 9
+            cards: _.maxBy(straightFlushGroups, (group) => _.maxBy(group, "weight"))
         };
+        resultCombination.weight = this.getCombinationWeight(resultCombination);
+
+        return resultCombination;
+
     },
 
 
@@ -297,11 +319,12 @@ export default {
         const uniqSortedCards = _.sortedUniqBy(sortedCards, "weight");
         const uniqCount = uniqSortedCards.length;
 
+        let resultCombination;
         let chunkInd = 0;
         let currentCardWeight = uniqSortedCards[0].weight;
         let chunks = [[]];
 
-        for (let i =0; i < uniqCount; i++) {
+        for (let i = 0; i < uniqCount; i++) {
 
             const card = uniqSortedCards[i];
             const weight = card.weight;
@@ -323,11 +346,13 @@ export default {
         let bestStraight = chunks[chunks.length - 1];
         bestStraight.splice(0, bestStraight.length - 5);
 
-        return {
+        resultCombination = {
             name: "Straight",
-            cards: bestStraight,
-            weight: 5
+            cards: bestStraight
         };
+        resultCombination.weight = this.getCombinationWeight(resultCombination);
+
+        return resultCombination;
     },
 
 
@@ -335,6 +360,7 @@ export default {
 
         let flush = [];
         let groups = [];
+        let resultCombination;
         const suitsGroups = _.groupBy(cards, (card) => card.suit);
 
         Object.keys(suitsGroups).forEach((key) => {
@@ -350,11 +376,12 @@ export default {
         if ( groups.length === 1 ) {
             flush = _.sortBy(groups[0], "weight");
             flush.splice(0, flush.length - 5);
-            return {
+            resultCombination = {
                 name: "Flush",
-                cards: flush,
-                weight: 6
-            };
+                cards: flush
+            }
+            resultCombination.weight = this.getCombinationWeight(resultCombination);
+            return resultCombination;
         }
 
         // если всего 7 карт (2 в руке и 5 на столе) -
@@ -362,11 +389,73 @@ export default {
         let bestFlush = _.maxBy(groups, (group) => _.maxBy(group, "weight"));
         bestFlush.splice(0, bestFlush.length - 5);
 
-        return {
+        resultCombination = {
             name: "Flush",
-            cards: bestFlush,
-            weight: 6
+            cards: bestFlush
+        }
+        resultCombination.weight = this.getCombinationWeight(resultCombination);
+        return resultCombination;
+    },
+
+    getCombinationWeight({name, cards, highCards}) {
+        let resultWeight;
+        let sortedCards = [];
+
+        if ( highCards ) {
+            sortedCards = _.sortBy(highCards, "weight");
+        }
+
+        const getCardsWeight = (cards) => {
+            let divider = 100;
+            let cardWeights = 0;
+            let card;
+            let i = 0;
+
+            while ( i < cards.length ) {
+                card = cards[i];
+                cardWeights += ( card.weight / divider );
+
+                i++;
+                divider *= divider;
+            }
+
+            return cardWeights;
         };
+
+        switch(name) {
+            case "Pair":
+            case "Trips":
+            case "Quads": {
+                const combinationCard = cards[0];
+                sortedCards.push(combinationCard);
+                break;
+            }
+
+            case "TwoPairs": {
+                const firstPairCard = cards[0];
+                const secondPairCard = cards[2];
+                sortedCards.push(secondPairCard, firstPairCard);
+                break;
+            }
+
+            case "FullHouse": {
+                const tripsCard = cards[0];
+                const pairCard = cards[3];
+                sortedCards.push(pairCard, tripsCard);
+                break;
+            }
+
+            default: {
+                sortedCards = cards;
+                break;
+            }
+
+        }
+
+        sortedCards.reverse();
+        resultWeight = getCardsWeight(sortedCards) + this.combinationsWeights[name];
+
+        return resultWeight;
     }
 
 };

@@ -161,13 +161,23 @@ export default class PlayersManager {
     }
 
     // находит лучшую комбинацию для каждого игрока
-    checkResults(tableCards) {
+    setBestCombination(tableCards) {
 
         this.players.forEach((player) => {
             const playerCards = player.cards;
             const cards = playerCards.concat(tableCards);
             player.bestCombination = combinations.findBestCombination(cards);
         });
+    }
+
+    checkResults(tableCards) {
+        this.setBestCombination(tableCards);
+        const winningComb = _.maxBy(this.players, "bestCombination.weight").bestCombination;
+        const winners = this.players.filter((player) =>
+            player.bestCombination.weight === winningComb.weight
+        );
+
+        winners.forEach((winner) => winner.isWinner = true);
     }
 
     // когда ставки равны - они собираются в пот
@@ -207,6 +217,7 @@ export default class PlayersManager {
         this.players.forEach((player) => {
             player.cards = [];
             player.bet = 0;
+            player.isWinner = false;
             delete player.bestCombination;
         });
     }

@@ -16,6 +16,10 @@ h2 {
     margin: 10px;
 }
 
+.winner {
+    border: 3px solid yellow;
+}
+
 .dealer {
     color: blue;
 }
