@@ -1,13 +1,11 @@
 import React, { Component } from "react";
 
 import Poker from "../classes/Poker";
+import Players from "./Players";
+import Table from "./Table";
+
 import '../styles/App.css';
 
-function Card(props) {
-    return (
-        <li>{props.suit} {props.faceValue}</li>
-    );
-}
 
 const createNewPlayers = () => {
     return [
@@ -54,90 +52,6 @@ class App extends Component {
         this.setPokerState();
     }
 
-    renderTable() {
-        const tableElements = poker.tableCards.reduce((elements, card) => {
-            return [
-                ...elements,
-                React.createElement(
-                    "div",
-                    {className: "tableCard"},
-                    `${card.suit} ${card.faceValue}`
-                )
-            ];
-        }, [
-            React.createElement(
-                "div",
-                {className: "pot"},
-                `POT: ${playersManager.pot}`
-            )
-        ]);
-
-        return tableElements
-    }
-
-    renderPlayers() {
-
-        const playersElements = this.state.players.reduce((elements, player) => {
-
-            const infoClassName = player.isDealer ? { className: "player-info dealer" } : {className: "player-info"};
-            const playerClassName = player.isWinner ? { className: "player winner" } : { className: "player" };
-
-            const newPlayerEl = React.createElement(
-                "div",
-                playerClassName,
-                [
-                    React.createElement(
-                        "div",
-                        infoClassName,
-                        player.name
-                    ),
-
-                    React.createElement(
-                        "div",
-                        {className: "player-cards"},
-                        React.createElement(
-                            "ul",
-                            {className: ""},
-                            player.cards ? player.cards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : ""
-                        )
-                    ),
-
-                    React.createElement(
-                        "div",
-                        {className: "player-bet"},
-                        player.bet
-                    ),
-
-                    React.createElement(
-                        "div",
-                        {className: "player-bestcombination"},
-                        React.createElement(
-                            "ul",
-                            {className: ""},
-                            [
-                                player.bestCombination ? "Best comb: " + player.bestCombination.name : "",
-                                player.bestCombination && player.bestCombination.cards ? player.bestCombination.cards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : "",
-                                player.bestCombination && player.bestCombination.highCards ? player.bestCombination.highCards.map(card => <Card faceValue={card.faceValue} suit={card.suit} />) : ""
-
-                            ] 
-                            
-                        )
-                    ),
-
-                    React.createElement(
-                        "div",
-                        {className: "player-stack"},
-                        "stack: " + player.chipsStack
-                    ),
-                ]
-            );
-
-            return [...elements, newPlayerEl];
-        }, []);
-
-        return playersElements;
-    }
-
 
     doAction(action) {
 
@@ -162,14 +76,10 @@ class App extends Component {
                 <button className = "startBtn" onClick = {this.startNewGame.bind(this)}> STARRT NEW GAME</button>
 
                 <h2>TABLE:</h2>
-                {
-                    this.renderTable()
-                }
+                <Table tableCards = {poker.tableCards} pot = {playersManager.pot} />
 
                 <h2>Players:</h2>
-                {
-                    this.renderPlayers()
-                }
+                <Players players = {this.state.players} />
 
                 <input className = "betSum" type="number"></input>
                 <button className = "checkBtn" onClick = {this.doAction.bind(this, "check")}> CHECK </button>
