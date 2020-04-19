@@ -1,8 +1,12 @@
 import React from "react";
 
 export default function(props) {
-    const tableCards = props.tableCards;
+    const tableCards = props.tableCards || [];
     const pot = props.pot;
+
+    if ( !tableCards.length && !pot ) {
+        return null;
+    }
 
     const tableElements = tableCards.reduce((elements, card) => {
         return [

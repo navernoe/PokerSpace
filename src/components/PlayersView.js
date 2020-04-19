@@ -1,9 +1,13 @@
 import React from "react";
-import Cards from "./Cards";
+import Cards from "./CardsView";
 
 export default function(props) {
 
     const players = props.players;
+
+    if ( !players.length ) {
+        return null;
+    }
 
     const playersElements = players.reduce((elements, player) => {
 
@@ -17,7 +21,7 @@ export default function(props) {
                 React.createElement(
                     "div",
                     infoClassName,
-                    player.name
+                    player.inQueue ? player.name + " >>" : player.name
                 ),
 
                 React.createElement(

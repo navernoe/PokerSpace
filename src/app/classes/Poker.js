@@ -1,6 +1,6 @@
 import _ from "lodash";
-import Deck from "./Deck";
-import PlayersManager from "./PlayersManager";
+import Deck from "./Deck.js";
+import PlayersManager from "./PlayersManager.js";
 
 export default class Poker {
 
@@ -29,6 +29,7 @@ export default class Poker {
                 this.river(isFirst); break;
             case "end":
                 this.playersManager.final(this.tableCards);
+                this.setStatus("start");
                 break;
         }
     }

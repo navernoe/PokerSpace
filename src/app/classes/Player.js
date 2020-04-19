@@ -6,6 +6,7 @@ export default class Player {
         this.chipsStack = 1000;
         this.bet = 0;
         this.status = "awaiting"; // в ожидании своего хода
+        this.inQueue = false;
     }
 
 

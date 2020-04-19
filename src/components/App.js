@@ -1,82 +1,90 @@
 import React, { Component } from "react";
 
-import Poker from "../classes/Poker";
-import Players from "./Players";
-import Table from "./Table";
-
-import '../styles/App.css';
-
-
-const createNewPlayers = () => {
-    return [
-        {
-            name: "Player1"
-        },
-        {
-            name: "Player2"
-        },
-        {
-            name: "Player3",
-            isRealMan: true
-        },
-        {
-            name: "Player4"
-        },
-        {
-            name: "Player5",
-            isRealMan: true
-        }
-
-    ];
-}
-
-const players = createNewPlayers();
-const poker = new Poker(players);
-const playersManager = poker.playersManager;
-const realPlayer = () => playersManager.playerInBetQueue;
+import Players from "./PlayersView";
+import Table from "./TableView";
+import "../styles/App.css";
 
 class App extends Component {
-
-    state = {
-        poker,
-        players: playersManager.players
+    constructor(props) {
+        super(props);
+        this.poker = {
+            tableCards: []
+        };
+        this.players = [];
+        this.pot = 0;
+        this.ws = new WebSocket("ws://localhost:3000");
+        this.ws.onmessage = this.onReceiveMsg.bind(this);
+        this.ws.onopen = this.onConnectionOpen.bind(this);
+        this.state = {
+            poker: this.poker,
+            players: this.players,
+            pot: this.pot
+        };
     }
+
+
+    onConnectionOpen() {
+        alert("Соединение установлено.");
+    }
+
 
     setPokerState() {
-        const players = playersManager.players;
-        this.setState({ poker,  players });
+        this.setState({
+            poker: this.poker,
+            players: this.players
+        });
     }
 
-    startNewGame() {
-        this.state.poker.start();
+
+    onReceiveMsg({data}) {
+        const dataObj = JSON.parse(data);
+        const poker = dataObj.poker;
+        this.poker = poker;
+        this.players = poker.playersManager.players;
+        this.pot = poker.playersManager.pot;
         this.setPokerState();
     }
 
 
-    doAction(action) {
+    createOrJoinGame() {
+        this.ws.send(JSON.stringify({
+            action: "join",
+            gameId: document.querySelector(".game-id").value
+        }));
+    }
 
+    startGame() {
+        this.ws.send(JSON.stringify({
+            action: "start"
+        }));
+    }
+
+
+    doAction(action) {
         let raiseSum;
 
         if ( action === "raise" ) {
             raiseSum = +document.querySelector(".betSum").value;
         }
 
-        playersManager[action](realPlayer(), raiseSum);
-        poker.goNextStep();
-
-        this.setPokerState();
+        this.ws.send(JSON.stringify({
+            action,
+            raiseSum
+        }));
     }
 
-    render() {
 
+    render() {
         return (
             <div>
                 <h1>PoHER</h1>
 
-                <button className = "startBtn" onClick = {this.startNewGame.bind(this)}> STARRT NEW GAME</button>
+                <input className = "game-id" type="text"></input>
+                <button className = "joinGameBtn" onClick = {this.createOrJoinGame.bind(this)}> CREATE OR JOIN GAME</button>
 
+                <button className = "startBtn" onClick = {this.startGame.bind(this)}>start</button>
                 <h2>TABLE:</h2>
-                <Table tableCards = {poker.tableCards} pot = {playersManager.pot} />
+                <Table tableCards = {this.state.poker.tableCards} pot = {this.state.pot} />
 
                 <h2>Players:</h2>
                 <Players players = {this.state.players} />

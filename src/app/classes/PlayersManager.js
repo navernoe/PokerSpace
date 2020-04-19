@@ -1,5 +1,6 @@
-import combinations from "./combinations";
-import Player from "./Player";
+import _ from "lodash";
+import combinations from "./combinations.js";
+import Player from "./Player.js";
 
 export default class PlayersManager {
     constructor(players) {
@@ -27,9 +28,24 @@ export default class PlayersManager {
                 this._setBigBlind(nextPlayer);
 
                 nextPlayer = this._getNextPlayer(nextPlayer);
-                this.playerInBetQueue = nextPlayer;
+                this._updQueue(nextPlayer);
             }
         });
+    }
+
+    _updQueue(player) {
+
+        if ( this.playerInBetQueue ) {
+            this.playerInBetQueue.inQueue = false;
+        }
+
+        if ( player ) {
+            player.inQueue = true;
+            this.playerInBetQueue = player;
+        } else {
+            delete this.playerInBetQueue;
+        }
+
     }
 
     _setSmallBlind(player) {
@@ -108,7 +124,7 @@ export default class PlayersManager {
     // ставит в очередь следующего игрока
     _setBetQueue() {
         const nextPlayer = this._getNextActivePlayer(this.playerInBetQueue);
-        this.playerInBetQueue = nextPlayer;
+        this._updQueue(nextPlayer);
     }
 
     // проверяет - равны ли все ставки, сделанные игроками
@@ -222,7 +238,7 @@ export default class PlayersManager {
         this.pot = 0;
         this.resetPlayersInfo();
         this.resetPlayersStatus();
-        delete this.playerInBetQueue;
+        this._updQueue();
         this.isCompletePot = false;
     }
 
@@ -235,6 +251,14 @@ export default class PlayersManager {
             player.isWinner = false;
             delete player.bestCombination;
         });
+    }
+
+
+    addNewPlayer(player) {
+        this.players.push(new Player(
+            player.name,
+            player.isRealMan
+        ));
     }
 
 
