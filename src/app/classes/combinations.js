@@ -66,6 +66,7 @@ export default {
             cards,
             count: 5
         });
+
         return {
             name: "HighCards",
             cards: highCards,

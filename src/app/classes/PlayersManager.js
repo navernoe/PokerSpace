@@ -33,48 +33,23 @@ export default class PlayersManager {
         });
     }
 
-    _updQueue(player) {
-
-        if ( this.playerInBetQueue ) {
-            this.playerInBetQueue.inQueue = false;
-        }
-
-        if ( player ) {
-            player.inQueue = true;
-            this.playerInBetQueue = player;
-        } else {
-            delete this.playerInBetQueue;
-        }
-
-    }
-
-    _setSmallBlind(player) {
-        player.setBet(this.bet / 2);
-        player.setStatus("smallBlind");
-    }
-
-    _setBigBlind(player) {
-        player.setBet(this.bet);
-        player.setStatus("bigBlind");
-    }
-
     check(player) {
         player.check();
         this._setBetQueue();
-        this.doBets();
+        //this.doBets();
     }
 
     call(player) {
         player.call(this.bet);
         this._setBetQueue();
-        this.doBets();
+        //this.doBets();
     }
 
     raise(player, raiseSum) {
         this.bet += raiseSum;
         player.raise(this.bet);
         this._setBetQueue();
-        this.doBets();
+        //this.doBets();
     }
 
     // следующий дилер = следующий игрок после дилера
@@ -108,6 +83,12 @@ export default class PlayersManager {
     }
 
 
+    doBet() {
+        this.playerInBetQueue.call(this.bet);
+        this._setBetQueue();
+    }
+
+
     doBets() {
         // делаем ставки за ботов
         // до тех пор пока не придет очередь живого человека,
@@ -121,11 +102,40 @@ export default class PlayersManager {
         }
     }
 
+
+    _updQueue(player) {
+
+        if ( this.playerInBetQueue ) {
+            this.playerInBetQueue.inQueue = false;
+        }
+
+        if ( player ) {
+            player.inQueue = true;
+            this.playerInBetQueue = player;
+        } else {
+            delete this.playerInBetQueue;
+        }
+    }
+
+
+    _setSmallBlind(player) {
+        player.setBet(this.bet / 2);
+        player.setStatus("smallBlind");
+    }
+
+
+    _setBigBlind(player) {
+        player.setBet(this.bet);
+        player.setStatus("bigBlind");
+    }
+
+
     // ставит в очередь следующего игрока
     _setBetQueue() {
         const nextPlayer = this._getNextActivePlayer(this.playerInBetQueue);
         this._updQueue(nextPlayer);
     }
+
 
     // проверяет - равны ли все ставки, сделанные игроками
     isAllBetsEqual() {
@@ -144,6 +154,7 @@ export default class PlayersManager {
         });
     }
 
+
     // находит следующего игрока, который в игре
     _getNextActivePlayer(player) {
         let nextActivePlayer;
@@ -160,6 +171,7 @@ export default class PlayersManager {
         return nextActivePlayer;
     }
 
+
     // находит следующего игрока
     _getNextPlayer(player) {
         const playersLastIndex = this.players.length - 1;
@@ -175,6 +187,7 @@ export default class PlayersManager {
         }
     }
 
+
     // находит лучшую комбинацию для каждого игрока
     setBestCombination(tableCards) {
 
@@ -185,6 +198,7 @@ export default class PlayersManager {
         });
     }
 
+
     getWinners() {
         const winningComb = _.maxBy(this.players, "bestCombination.weight").bestCombination;
         const winners = this.players.filter((player) =>
@@ -194,9 +208,11 @@ export default class PlayersManager {
         return winners;
     }
 
+
     setWinners(winners) {
         winners.forEach((winner) => winner.isWinner = true);
     }
+
 
     sharePot(winners) {
         const sharingSum = this.pot / winners.length;
@@ -204,12 +220,14 @@ export default class PlayersManager {
         winners.forEach(winner => winner.chipsStack += sharingSum);
     }
 
+
     final(tableCards) {
         this.setBestCombination(tableCards);
         const winners = this.getWinners();
         this.setWinners(winners);
         this.sharePot(winners);
     }
+
 
     // когда ставки равны - они собираются в пот
     setPot() {
@@ -226,11 +244,13 @@ export default class PlayersManager {
         this.resetPlayersStatus();
     }
 
+
     resetPlayersStatus() {
         this.players.forEach((player) => {
             player.setStatus("awaiting");
         });
     }
+
 
     // для начала следующей партии
     resetGame() {

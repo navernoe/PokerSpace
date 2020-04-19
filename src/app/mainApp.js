@@ -64,6 +64,10 @@ server.on("connection", (ws) => {
             poker.goNextStep();
         }
 
+        if ( action === "doBetsByBots" ) {
+            poker.playersManager.doBet();
+        }
+
         server.broadcast(JSON.stringify({
             poker
         }), ws.gameId);

@@ -43,6 +43,29 @@ class App extends Component {
         this.players = poker.playersManager.players;
         this.pot = poker.playersManager.pot;
         this.setPokerState();
+
+        const playerInBetQueue = this.poker.playersManager.playerInBetQueue;
+
+        // TODO: why there is no delay for the last bot ??!
+        if (
+            playerInBetQueue
+            && !playerInBetQueue.isRealMan
+        ) {
+            this.setDelay(2000);
+            this.ws.send(JSON.stringify({
+                action: "doBetsByBots"
+            }));
+        }
+    }
+
+
+    setDelay( delayDuration ){
+        const timeStart = new Date().getTime();
+        let now = new Date().getTime();
+
+        while( now < timeStart + delayDuration ) {
+            now = new Date().getTime();
+        }
     }
 
 
@@ -52,6 +75,7 @@ class App extends Component {
             gameId: document.querySelector(".game-id").value
         }));
     }
+
 
     startGame() {
         this.ws.send(JSON.stringify({

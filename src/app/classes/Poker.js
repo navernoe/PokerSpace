@@ -3,7 +3,6 @@ import Deck from "./Deck.js";
 import PlayersManager from "./PlayersManager.js";
 
 export default class Poker {
-
     constructor(players) {
         this.status = "start";
         this.deck = new Deck;
@@ -11,9 +10,11 @@ export default class Poker {
         this.playersManager = new PlayersManager(players);
     }
 
+
     setStatus(status) {
         this.status = status;
     }
+
 
     goNextStep(isFirst = false) {
         switch(this.status) {
@@ -34,6 +35,7 @@ export default class Poker {
         }
     }
 
+
     start() {
         this.clearTable();
         this.playersManager.resetGame();
@@ -52,7 +54,7 @@ export default class Poker {
         if ( isFirst ) {
             this.playersManager.setBlinds();
             this.playersManager.dealTheCards(this.deck);
-            this.playersManager.doBets();
+            // this.playersManager.doBets();
         }
 
         if ( this.playersManager.isAllBetsEqual() && !this.playersManager.isCompletePot ) {
@@ -60,9 +62,10 @@ export default class Poker {
             this.setStatus("flop");
             this.goNextStep(true);
         } else {
-            this.playersManager.doBets();
+           // this.playersManager.doBets();
         }
     }
+
 
     flop(isFirst) {
 
@@ -78,10 +81,11 @@ export default class Poker {
             this.setStatus("tern");
             this.goNextStep(true);
         } else {
-            this.playersManager.doBets();
+            // this.playersManager.doBets();
         }
 
     }
+
 
     tern(isFirst) {
 
@@ -97,9 +101,10 @@ export default class Poker {
             this.setStatus("river");
             this.goNextStep(true);
         } else {
-            this.playersManager.doBets();
+            // this.playersManager.doBets();
         }
     }
+
 
     river(isFirst) {
 
@@ -115,7 +120,7 @@ export default class Poker {
             this.setStatus("end");
             this.goNextStep();
         } else {
-            this.playersManager.doBets();
+            // this.playersManager.doBets();
         }
     }
 
@@ -123,6 +128,5 @@ export default class Poker {
     clearTable() {
         this.tableCards = [];
     }
-
 
 }
