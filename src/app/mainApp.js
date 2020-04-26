@@ -1,5 +1,36 @@
+// import http from "http";
+// import fs from "fs";
+// import path from "path";
 import WebSocket from "ws";
 import Poker from "./classes/Poker.js";
+
+/*
+http.createServer((req, res) => {
+    //console.log("___dirname ", __dirname);
+    const url = req.url;
+    //res.setHeader("Location", url);
+
+    //if ( url == "/" ) {
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        const currentDir = path.resolve();
+        const absolutePath = path.join(currentDir, "/dist/index.html");
+        fs.createReadStream(absolutePath).pipe(res);
+        // fs.readFile(absolutePath, ( error, data ) => {
+
+        //     if ( error ) {
+        //         res.statusCode = 404;
+        //         res.end("Resourse not found!");
+        //     }
+        //     else {
+        //          res.writeHead(200, {'Content-Type': 'text/html'});
+        //         res.end(data);
+        //     }
+        // });
+   // } else {
+        //res.end();
+   //}
+}).listen(8080);
+*/
 
 const server = new WebSocket.Server({ port: 3000 });
 const games = {};
