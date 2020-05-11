@@ -3,11 +3,12 @@ import Deck from "./Deck.js";
 import PlayersManager from "./PlayersManager.js";
 
 export default class Poker {
-    constructor(players) {
-        this.status = "start";
-        this.deck = new Deck;
-        this.tableCards = [];
-        this.playersManager = new PlayersManager(players);
+    constructor(params) {
+        const playerManagerParams = params.playersManager || { players: params.players };
+        this.playersManager = new PlayersManager(playerManagerParams);
+        this.status = params.status || "start";
+        this.deck = new Deck(params.deck);
+        this.tableCards = params.tableCards || [];
     }
 
 

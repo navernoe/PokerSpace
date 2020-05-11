@@ -8,25 +8,33 @@ class Game extends Component {
         super(props);
         this.ws = props.ws;
         this.ws.onmessage = this.onReceiveMsg.bind(this);
-
-        this.poker = {
-            tableCards: []
-        };
-        this.players = [];
-        this.pot = 0;
+        this.gameId = props.match.params.game_id;
+        this.ws.gameId = this.gameId;
         this.state = {
-            poker: this.poker,
-            players: this.players,
-            pot: this.pot
+            poker: {
+                tableCards: []
+            },
+            players: [],
+            pot: 0
         };
+        this.loadGame();
     }
 
 
     setPokerState() {
         this.setState({
             poker: this.poker,
-            players: this.players
+            players: this.players,
+            pot: this.poker.playersManager.pot
         });
+    }
+
+
+    loadGame() {
+        this.ws.send(JSON.stringify({
+            action: "loadGame",
+            gameId: this.gameId
+        }));
     }
 
 
@@ -38,18 +46,20 @@ class Game extends Component {
         this.pot = poker.playersManager.pot;
         this.setPokerState();
 
-        const playerInBetQueue = this.poker.playersManager.playerInBetQueue;
 
-        // TODO: why there is no delay for the last bot ??!
-        if (
-            playerInBetQueue
-            && !playerInBetQueue.isRealMan
-        ) {
-            this.setDelay(2000);
-            this.ws.send(JSON.stringify({
-                action: "doBetsByBots"
-            }));
+        const playerInBetQueue = this.poker.playersManager.playerInBetQueue;
+        if ( playerInBetQueue && !playerInBetQueue.isRealMan ) {
+            this.doBetByBot();
         }
+    }
+
+
+    doBetByBot() {
+        // TODO: why there is no delay for the last bot ??!
+        this.setDelay(2000);
+        this.ws.send(JSON.stringify({
+            action: "doBetByBot"
+        }));
     }
 
 
@@ -66,14 +76,6 @@ class Game extends Component {
     startGame() {
         this.ws.send(JSON.stringify({
             action: "start"
-        }));
-    }
-
-
-    joinGame() {
-        this.ws.send(JSON.stringify({
-            action: "join",
-            gameId: 1
         }));
     }
 
@@ -98,7 +100,6 @@ class Game extends Component {
                 <h1>PoHER</h1>
 
                 <button className = "startBtn" onClick = {this.startGame.bind(this)}>start</button>
-                <button className = "joinBtn" onClick = {this.joinGame.bind(this)}>JOIN</button>
                 <h2>TABLE:</h2>
                 <Table tableCards = {this.state.poker.tableCards} pot = {this.state.pot} />
 

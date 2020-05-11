@@ -52,3 +52,29 @@ button {
     margin: 10px;
     font: bold  16pt sans-serif;
 }
+
+.gameList {
+    color: grey;
+    width: 300px;
+}
+
+.gameLink {
+    margin: 10px;
+}
+
+.removeGame {
+    float: right;
+}
+
+.removeGame img{
+    width: 20px;
+    height: 20px;
+}
+
+.removeGame:hover img{
+    width: 22px;
+    height: 22px;
+}
+
+
+

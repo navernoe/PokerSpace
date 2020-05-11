@@ -3,8 +3,10 @@
 // import path from "path";
 import WebSocket from "ws";
 import Poker from "./classes/Poker.js";
+import StorageManager from "./classes/StorageManager.js";
 
-/*
+/*  try to create own http-server
+
 http.createServer((req, res) => {
     //console.log("___dirname ", __dirname);
     const url = req.url;
@@ -30,73 +32,130 @@ http.createServer((req, res) => {
         //res.end();
    //}
 }).listen(8080);
+
 */
 
 const server = new WebSocket.Server({ port: 3000 });
-const games = {};
+const gamesList = StorageManager.getGamesList();
 const players = [
-        {
-            name: "Player1"
-        },
-        {
-            name: "Player2"
-        },
-        {
-            name: "Player3"
-        },
-        {
-            name: "Player4"
-        }
+    { name: "Player1" },
+    { name: "Player2" },
+    { name: "Player3" },
+    { name: "Player4" }
 ];
+let newPlayerId = 5;
+let currentWS;
 
-server.on("connection", (ws) => {
-    const actions = ["call", "raise", "fold", "check"];
-    server.broadcast = (data, gameId) => {
-        server.clients.forEach(client => {
-            if ( client.gameId === gameId ) {
-                client.send(data);
-            }
-        });
-    };
-
+function addNewPlayer() {
+    newPlayerId++;
     const newPlayer = {
-        name: "Player5",
+        name: "Player" + newPlayerId,
         isRealMan: true
     };
     players.push(newPlayer);
+}
+
+function updateGamesList() {
+    currentWS.send(JSON.stringify({
+        gamesList,
+        msgTag: "updatedGamesList"
+    }));
+};
+
+function createNewGame(newGameId) {
+    const poker = new Poker({ players });
+    gamesList[ newGameId ] = poker;
+    StorageManager.writeGame(poker, newGameId);
+}
+
+function removeGame(gameId) {
+    StorageManager.removeGame(gameId);
+    delete gamesList[ gameId ];
+}
+
+function loadGame(gameId) {
+    let game;
+    const isGameExists = StorageManager.isGameExists(gameId);
+
+    if ( isGameExists ) {
+        const gameData = StorageManager.getGame(gameId);
+        game = new Poker(gameData);
+    }
+
+    return game;
+}
+
+server.broadcast = (data, gameId) => {
+    server.clients.forEach(client => {
+        if ( client.gameId === gameId ) {
+            client.send(data);
+        }
+    });
+};
+
+server.on("connection", (ws) => {
+    currentWS = ws;
+    addNewPlayer();
 
     ws.on("message", (data) => {
         data = JSON.parse(data);
         const gameId = ws.gameId;
         const action = data.action;
-        let poker = games[gameId];
+        let poker = gamesList[gameId];
 
-        if ( action === "join" ) {
-            const requestGameId = data.gameId;
+        // if ( poker && !(poker instanceof Poker) ) {
+        //     poker = new Poker(poker);
+        //     gamesList[gameId] = poker;
+        // }
 
-            if ( games[requestGameId] ) {
-                poker = games[requestGameId];
-            } else {
-                poker = new Poker(players);
-                games[requestGameId] = poker;
+        switch( action ) {
+            case "updateGamesList": {
+                updateGamesList();
+                return;
             }
-            ws.gameId = requestGameId;
-        }
-
-        if ( action === "start" ) {
-            poker.start();
-        }
-
-        if ( actions.includes(action) ) {
-            const raiseSum = data.raiseSum;
-            const playersManager = poker.playersManager;
-            const playerInBetQueue = playersManager.playerInBetQueue;
-            playersManager[action](playerInBetQueue, raiseSum);
-            poker.goNextStep();
-        }
-
-        if ( action === "doBetsByBots" ) {
-            poker.playersManager.doBet();
+            case "createNewGame": {
+                const newGameId = data.gameId;
+                createNewGame(newGameId);
+                updateGamesList();
+                return;
+            }
+            case "loadGame": {
+                const requestGameId = data.gameId;
+                poker = loadGame(requestGameId);
+                poker = new Poker(poker);
+                gamesList[requestGameId] = poker;
+                ws.gameId = requestGameId;
+                break;
+            }
+            case "start": {
+                poker.start();
+                StorageManager.writeGame(poker, gameId);
+                break;
+            }
+            case "doBetByBot": {
+                poker.playersManager.doBet();
+                StorageManager.writeGame(poker, gameId);
+                break;
+            }
+            case "removeGame": {
+                const requestGameId = data.gameId;
+                removeGame(requestGameId);
+                updateGamesList();
+                return;
+            }
+            case "check":
+            case "call":
+            case "raise":
+            case "fold": {
+                const raiseSum = data.raiseSum;
+                const playersManager = poker.playersManager;
+                const playerInBetQueue = playersManager.playerInBetQueue;
+                playersManager[action](playerInBetQueue, raiseSum);
+                poker.goNextStep();
+                StorageManager.writeGame(poker, gameId);
+                break;
+            }
+            default: break;
         }
 
         server.broadcast(JSON.stringify({
@@ -104,3 +163,5 @@ server.on("connection", (ws) => {
         }), ws.gameId);
     });
 });
+
+

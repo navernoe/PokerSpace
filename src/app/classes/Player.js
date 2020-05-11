@@ -1,12 +1,15 @@
 export default class Player {
 
-    constructor(name, isRealMan = false) {
-        this.name = name;
-        this.isRealMan = isRealMan;
-        this.chipsStack = 1000;
-        this.bet = 0;
-        this.status = "awaiting"; // в ожидании своего хода
-        this.inQueue = false;
+    constructor(params) {
+        this.name = params.name;
+        this.isRealMan = params.isRealMan || false;
+        this.chipsStack = params.chipsStack || 1000;
+        this.bet = params.bet || 0;
+        this.status = params.status || "awaiting"; // в ожидании своего хода
+        this.inQueue = params.inQueue || false;
+        this.isDealer = params.isDealer || false;
+        this.cards = params.cards || [];
+        this.isWinner = params.isWinner || false;
     }
 
 
@@ -52,6 +55,10 @@ export default class Player {
 
     isFold() {
         return this.getStatus() === "fold";
+    }
+
+    isAwait() {
+        return this.getStatus() === "awaiting";
     }
 
 }

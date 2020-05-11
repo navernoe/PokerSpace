@@ -2,7 +2,9 @@ import _ from "lodash";
 
 export default class Deck {
 
-    constructor() {
+    constructor(params) {
+
+        params = params || {};
 
         this._cardsSuit = [
             "Hearts",
@@ -27,7 +29,8 @@ export default class Deck {
             "2"
         ];
 
-        this.chosenCards = [];
+        this.chosenCards = params.chosenCards || [];
+        this.cards = params.cards || [];
     }
 
     // новая колода из всех возможных карт

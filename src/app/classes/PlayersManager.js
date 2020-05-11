@@ -3,17 +3,15 @@ import combinations from "./combinations.js";
 import Player from "./Player.js";
 
 export default class PlayersManager {
-    constructor(players) {
-        this.pot = 0;
-        this.bet = 40;
-        this.isCompletePot = false;
+    constructor(params) {
+        this.pot = params.pot || 0;
+        this.bet = params.bet || 40;
+        this.isCompletePot = params.isCompletePot || false;
+        this.players = params.players.map((player) => new Player(player));
 
-        this.players = players.map((player) => {
-            return new Player(
-                player.name,
-                player.isRealMan
-            );
-        });
+        if ( params.playerInBetQueue ) {
+            this.playerInBetQueue = new Player(params.playerInBetQueue);
+        }
     }
 
     setBlinds() {
@@ -84,8 +82,7 @@ export default class PlayersManager {
 
 
     doBet() {
-        this.playerInBetQueue.call(this.bet);
-        this._setBetQueue();
+        this.call(this.playerInBetQueue);
     }
 
 
@@ -97,8 +94,7 @@ export default class PlayersManager {
             !this.playerInBetQueue.isRealMan
             && !this.isAllBetsEqual()
         ) {
-            this.playerInBetQueue.call(this.bet)
-            this._setBetQueue();
+            this.call(this.playerInBetQueue);
         }
     }
 
@@ -142,14 +138,14 @@ export default class PlayersManager {
         return !this.players.some((player) => {
             const isBetEqual = (player.bet === this.bet);
             const isFold = player.isFold();
-            const status = player.getStatus();
+            const isAwait = player.isAwait();
 
             return (
                 (
                     !isBetEqual
                     && !isFold
                 )
-                || status === "awaiting"
+                || isAwait
             );
         });
     }
@@ -280,6 +276,5 @@ export default class PlayersManager {
             player.isRealMan
         ));
     }
-
 
 }
