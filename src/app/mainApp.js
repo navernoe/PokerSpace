@@ -53,9 +53,10 @@ function loadGame(gameId) {
 }
 
 server.broadcast = (data, gameId) => {
+    const dataJSON = JSON.stringify(data);
     server.clients.forEach(client => {
         if ( client.gameId === gameId ) {
-            client.send(data);
+            client.send(dataJSON);
         }
     });
 };
@@ -66,6 +67,8 @@ server.on("connection", (ws) => {
     updateGamesList();
 
     ws.on("message", (data) => {
+        currentWS = ws;
+
         try {
             data = JSON.parse(data);
             const gameId = ws.gameId;
@@ -123,20 +126,24 @@ server.on("connection", (ws) => {
                 default: break;
             }
 
-            server.broadcast(JSON.stringify({
-                poker
-            }), ws.gameId);
+            server.broadcast({ poker }, ws.gameId);
         } catch (err) {
             console.log(err);
+            sendError(err);
         }
     });
 
     ws.on("error", (err) => {
-        server.broadcast(JSON.stringify({
-            msgTag: "error",
-            error: err
-        }), ws.gameId);
+        sendError(err);
     });
 });
 
+function sendError(err) {
+    const errStr = err.message + "\n" + err.stack;
+    const msg = {
+        msgTag: "error",
+        error: errStr
+    };
+    server.broadcast(msg, currentWS.gameId);
+}
 
