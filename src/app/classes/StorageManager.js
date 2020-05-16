@@ -42,14 +42,13 @@ class StorageManager {
         return match;
     }
 
-    writeGame(game, gameId) {
-        this.changeGameStatus(gameId, game.status);
+    writeGame({ game, gameId }) {
+        this.changeGameStatus({ gameId, status: game.status });
 
         const matchId = gamesStatus[gameId].matchId;
-        const matchStatus = gamesStatus[gameId].status;
         const gamePath = this.getGamePath(gameId);
 
-        if ( matchStatus !== "start" ) {
+        if ( fs.existsSync(gamePath) ) {
             fs.readFile(gamePath, (err, matches) => {
                 if (err) console.log(err);
     
@@ -71,12 +70,12 @@ class StorageManager {
     removeGame(gameId) {
         const gamePath = this.getGamePath(gameId);
         fs.unlinkSync(gamePath);
-        this.changeGameStatus(gameId);
+        this.changeGameStatus({ gameId });
     }
 
-    changeGameStatus(gameId, status) {
+    changeGameStatus({ gameId, status }) {
         if ( status ) {
-            this._setGameStatus(gameId, status);
+            this._setGameStatus({ gameId, status });
         } else {
             this._removeGameStatus(gameId);
         }
@@ -84,9 +83,13 @@ class StorageManager {
         this._writeGameStatusFile();
     }
 
-    _setGameStatus(gameId, status) {
+    _setGameStatus({ gameId, status }) {
         if ( gamesStatus[gameId] ) {
             gamesStatus[gameId].status = status;
+
+            if ( status === "start" ) {
+                gamesStatus[gameId].matchId++;
+            }
         } else {
             gamesStatus[gameId] = {
                 status,

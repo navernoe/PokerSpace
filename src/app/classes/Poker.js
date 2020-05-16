@@ -29,14 +29,17 @@ export default class Poker {
                 this.river(isFirst); break;
             case "end":
                 this.playersManager.final(this.tableCards);
-                this.setStatus("start");
                 break;
         }
     }
 
-    start() {
+    resetToStart() {
+        this.setStatus("start");
         this.clearTable();
         this.playersManager.resetGame();
+    }
+
+    start() {
         this.deck.createNewDeck();
         this.deck.shuffleCards();
         this.playersManager.setDealer();

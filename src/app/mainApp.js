@@ -32,7 +32,7 @@ function updateGamesList() {
 function createNewGame(newGameId) {
     const poker = new Poker({ players });
     gamesList[ newGameId ] = poker;
-    StorageManager.writeGame(poker, newGameId);
+    StorageManager.writeGame({ game: poker, gameId: newGameId });
 }
 
 function removeGame(gameId) {
@@ -66,59 +66,75 @@ server.on("connection", (ws) => {
     updateGamesList();
 
     ws.on("message", (data) => {
-        data = JSON.parse(data);
-        const gameId = ws.gameId;
-        const action = data.action;
-        let poker = gamesList[gameId];
+        try {
+            data = JSON.parse(data);
+            const gameId = ws.gameId;
+            const action = data.action;
+            let poker = gamesList[gameId];
 
-        switch( action ) {
-            case "createNewGame": {
-                const newGameId = data.gameId;
-                createNewGame(newGameId);
-                updateGamesList();
-                return;
+            switch( action ) {
+                case "createNewGame": {
+                    const newGameId = data.gameId;
+                    createNewGame(newGameId);
+                    updateGamesList();
+                    return;
+                }
+                case "loadGame": {
+                    const requestGameId = data.gameId;
+                    poker = loadGame(requestGameId);
+                    poker = new Poker(poker);
+                    gamesList[requestGameId] = poker;
+                    ws.gameId = requestGameId;
+                    break;
+                }
+                case "resetGame": {
+                    poker.resetToStart();
+                    StorageManager.writeGame({ game: poker, gameId });
+                    break;
+                }
+                case "start": {
+                    poker.start();
+                    StorageManager.writeGame({ game: poker, gameId });
+                    break;
+                }
+                case "doBetByBot": {
+                    poker.playersManager.doBet();
+                    StorageManager.writeGame({ game: poker, gameId });
+                    break;
+                }
+                case "removeGame": {
+                    const requestGameId = data.gameId;
+                    removeGame(requestGameId);
+                    updateGamesList();
+                    return;
+                }
+                case "check":
+                case "call":
+                case "raise":
+                case "fold": {
+                    const raiseSum = data.raiseSum;
+                    const playersManager = poker.playersManager;
+                    const playerInBetQueue = playersManager.playerInBetQueue;
+                    playersManager[action](playerInBetQueue, raiseSum);
+                    poker.goNextStep();
+                    StorageManager.writeGame({ game: poker, gameId });
+                    break;
+                }
+                default: break;
             }
-            case "loadGame": {
-                const requestGameId = data.gameId;
-                poker = loadGame(requestGameId);
-                poker = new Poker(poker);
-                gamesList[requestGameId] = poker;
-                ws.gameId = requestGameId;
-                break;
-            }
-            case "start": {
-                poker.start();
-                StorageManager.writeGame(poker, gameId);
-                break;
-            }
-            case "doBetByBot": {
-                poker.playersManager.doBet();
-                StorageManager.writeGame(poker, gameId);
-                break;
-            }
-            case "removeGame": {
-                const requestGameId = data.gameId;
-                removeGame(requestGameId);
-                updateGamesList();
-                return;
-            }
-            case "check":
-            case "call":
-            case "raise":
-            case "fold": {
-                const raiseSum = data.raiseSum;
-                const playersManager = poker.playersManager;
-                const playerInBetQueue = playersManager.playerInBetQueue;
-                playersManager[action](playerInBetQueue, raiseSum);
-                poker.goNextStep();
-                StorageManager.writeGame(poker, gameId);
-                break;
-            }
-            default: break;
+
+            server.broadcast(JSON.stringify({
+                poker
+            }), ws.gameId);
+        } catch (err) {
+            console.log(err);
         }
+    });
 
+    ws.on("error", (err) => {
         server.broadcast(JSON.stringify({
-            poker
+            msgTag: "error",
+            error: err
         }), ws.gameId);
     });
 });

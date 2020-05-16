@@ -20,7 +20,6 @@ class GameView extends Component {
         this.loadGame();
     }
 
-
     setPokerState() {
         this.setState({
             poker: this.poker,
@@ -29,7 +28,6 @@ class GameView extends Component {
         });
     }
 
-
     loadGame() {
         this.ws.send(JSON.stringify({
             action: "loadGame",
@@ -37,9 +35,14 @@ class GameView extends Component {
         }));
     }
 
-
     onReceiveMsg({data}) {
         const dataObj = JSON.parse(data);
+
+        if ( dataObj.msgTag === "error" ) {
+            console.log(dataObj.error);
+            return;
+        }
+
         const poker = dataObj.poker;
         this.poker = poker;
         this.players = poker.playersManager.players;
@@ -48,20 +51,22 @@ class GameView extends Component {
 
 
         const playerInBetQueue = this.poker.playersManager.playerInBetQueue;
-        if ( playerInBetQueue && !playerInBetQueue.isRealMan ) {
+        if (
+            playerInBetQueue
+            && !playerInBetQueue.isRealMan
+            && this.poker.statue !== "start"
+        ) {
             this.doBetByBot();
         }
     }
 
-
     doBetByBot() {
         // TODO: why there is no delay for the last bot ??!
-        this.setDelay(2000);
+        this.setDelay(500);
         this.ws.send(JSON.stringify({
             action: "doBetByBot"
         }));
     }
-
 
     setDelay( delayDuration ){
         const timeStart = new Date().getTime();
@@ -72,13 +77,17 @@ class GameView extends Component {
         }
     }
 
-
     startGame() {
         this.ws.send(JSON.stringify({
             action: "start"
         }));
     }
 
+    resetGame() {
+        this.ws.send(JSON.stringify({
+            action: "resetGame"
+        }));
+    }
 
     doAction(action) {
         let raiseSum;
@@ -100,6 +109,7 @@ class GameView extends Component {
                 <h1>PoHER</h1>
 
                 <button className = "startBtn" onClick = {this.startGame.bind(this)}>start</button>
+                <button className = "resetBtn" onClick = {this.resetGame.bind(this)}>reset</button>
                 <h2>TABLE:</h2>
                 <TableView tableCards = {this.state.poker.tableCards} pot = {this.state.pot} />
 

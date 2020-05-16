@@ -14,7 +14,6 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 		this.ws = new WebSocket("ws://localhost:3000");
-		this.ws.onopen = this.onConnectionOpen.bind(this);
 		this.ws.onmessage = this.onReceiveMsg.bind(this);
 		this.state = {
 			gamesList: {}
@@ -33,15 +32,15 @@ class App extends Component {
 		if ( dataObj.msgTag === "updatedGamesList" ) {
 			this.setState({ gamesList: dataObj.gamesList });
 		}
+
+		if ( dataObj.msgTag === "error" ) {
+			console.log(dataObj.error);
+		}
 	}
 
 	getCurrentGamesList() {
 		return this.state.gamesList;
 	}
-
-	onConnectionOpen() {
-		alert("Соединение установлено.");
-  	}
   
 	createNewGame() {
 		const gameId = playerName + Date.now();
