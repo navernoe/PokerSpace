@@ -5,8 +5,8 @@ import {
     Route
   } from "react-router-dom";
 
-import Game from "./Game";
-import GamesListView from "./GamesListView";
+import Game from "./GameView";
+import GamesList from "./GamesListView";
 
 const playerName = "testPlayerName";
 
@@ -35,12 +35,6 @@ class App extends Component {
 		}
 	}
 
-	loadGamesList() {
-		this.ws.send(JSON.stringify({
-			action: "updateGamesList"
-		}));
-	}
-
 	getCurrentGamesList() {
 		return this.state.gamesList;
 	}
@@ -56,8 +50,6 @@ class App extends Component {
 			action: "createNewGame",
 			gameId
 		}));
-
-		this.loadGamesList();
 	}
 
     render() {
@@ -66,7 +58,7 @@ class App extends Component {
 			<Router>
 			<div>
 				<nav>
-					<GamesListView gamesList={this.getCurrentGamesList()} ws={this.ws}/>
+					<GamesList gamesList={this.getCurrentGamesList()} ws={this.ws}/>
 				</nav>
 
 				<Switch>
@@ -81,7 +73,6 @@ class App extends Component {
 			</Router>
 
         	<button className = "createBtn" onClick = {this.createNewGame.bind(this)} >Create New Game</button>
-        	<button className = "loadBtn" onClick = {this.loadGamesList.bind(this)} >Load Games List</button>
         </div>
       );
     }

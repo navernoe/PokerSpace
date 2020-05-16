@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import Table from "./TableView";
-import Players from "./PlayersView";
+import TableView from "./TableView";
+import PlayersView from "./PlayersView";
 import "../styles/App.css";
 
-class Game extends Component {
+class GameView extends Component {
     constructor(props) {
         super(props);
         this.ws = props.ws;
@@ -101,10 +101,10 @@ class Game extends Component {
 
                 <button className = "startBtn" onClick = {this.startGame.bind(this)}>start</button>
                 <h2>TABLE:</h2>
-                <Table tableCards = {this.state.poker.tableCards} pot = {this.state.pot} />
+                <TableView tableCards = {this.state.poker.tableCards} pot = {this.state.pot} />
 
                 <h2>Players:</h2>
-                <Players players = {this.state.players} />
+                <PlayersView players = {this.state.players} />
 
                 <input className = "betSum" type="number"></input>
                 <button className = "checkBtn" onClick = {this.doAction.bind(this, "check")}> CHECK </button>
@@ -117,4 +117,4 @@ class Game extends Component {
     }
 }
 
-export default Game;
+export default GameView;

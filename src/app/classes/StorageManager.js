@@ -1,3 +1,13 @@
+/**
+ *    - в файле с игрой хранится список всех сыгранных партий (matches),
+ *      а точнее, последнее состояние каждой сыгранной (или не доигранной) партии
+ *
+ *    - в файле gamesStatus хранится информация по всем существующим играм,
+ *      а именно:
+ *          'status' - последний статус из текущей партии,
+ *          'matchId' - порядковый номер последней партии
+ *
+ */
 import fs from "fs";
 import gamesStatus from "./../data/gamesData/gamesStatus.json";
 
@@ -10,7 +20,7 @@ class StorageManager {
     }
 
     getGamesList() {
-        const gamesList = Object.assign(gamesStatus, {});
+        const gamesList = Object.assign({}, gamesStatus);
 
         return gamesList;
     }
@@ -33,12 +43,13 @@ class StorageManager {
     }
 
     writeGame(game, gameId) {
+        this.changeGameStatus(gameId, game.status);
+
+        const matchId = gamesStatus[gameId].matchId;
+        const matchStatus = gamesStatus[gameId].status;
         const gamePath = this.getGamePath(gameId);
-        let matchId = 1;
 
-        if ( gamesStatus[gameId] ) {
-            matchId = gamesStatus[gameId].matchId;
-
+        if ( matchStatus !== "start" ) {
             fs.readFile(gamePath, (err, matches) => {
                 if (err) console.log(err);
     
@@ -47,44 +58,48 @@ class StorageManager {
     
                 fs.writeFile(gamePath, JSON.stringify(matches), (err) => {
                     if (err) console.log(err);
-                    this.setGameStatus(gameId, game.status);
                 });
             });
 
         } else {
-            gamesStatus[gameId] = {
-                status: game.status, // "start"
-                matchId // 1
-            };
-
             fs.writeFile(gamePath, JSON.stringify({ [matchId]: game }), (err) => {
                 if (err) console.log(err);
             });
         }
-
-        this.writeGameStatusFile();        
     }
 
     removeGame(gameId) {
         const gamePath = this.getGamePath(gameId);
         fs.unlinkSync(gamePath);
-        this.removeGameStatus(gameId);
-        this.writeGameStatusFile();
+        this.changeGameStatus(gameId);
     }
 
-    removeGameStatus(gameId) {
-        delete gamesStatus[gameId];
+    changeGameStatus(gameId, status) {
+        if ( status ) {
+            this._setGameStatus(gameId, status);
+        } else {
+            this._removeGameStatus(gameId);
+        }
+
+        this._writeGameStatusFile();
     }
 
-    setGameStatus(gameId, status) {
+    _setGameStatus(gameId, status) {
         if ( gamesStatus[gameId] ) {
             gamesStatus[gameId].status = status;
         } else {
-            gamesStatus[gameId] = { status };
+            gamesStatus[gameId] = {
+                status,
+                matchId: 1
+            };
         }
     }
 
-    writeGameStatusFile() {
+    _removeGameStatus(gameId) {
+        delete gamesStatus[gameId];
+    }
+
+    _writeGameStatusFile() {
         fs.writeFile(gamesStatusPath, JSON.stringify(gamesStatus), (err) => {
             if (err) console.log(err);
         });

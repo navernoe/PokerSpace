@@ -29,27 +29,23 @@ export default function(props) {
 
     const gamesLinks = Object.keys(gamesList).reduce((elements, gameId) => {
         const gameURL = "/game/" + gameId;
-
-        const newGameLink = React.createElement(
-            "li",
-            { className: "gameLink" },
-            [
-                <Link to={ gameURL }>
+        const newGameLink = (
+            <li key={gameURL} className="gameLink">
+                <Link to={gameURL}>
                     { gameId }
                 </Link>,
-                <RemoveGame ws={ props.ws } gameId={ gameId }/>
-            ]
+                <RemoveGame ws={props.ws} gameId={gameId}/>
+            </li>
         );
 
         return [...elements, newGameLink];
     }, []);
 
-    const gamesListElement = React.createElement(
-        "ul",
-        { className: "gameList" },
-        gamesLinks
+    const gamesListElement = (
+        <ul className="gameList">
+            { gamesLinks }
+        </ul>
     );
-
 
     return gamesListElement;
 }

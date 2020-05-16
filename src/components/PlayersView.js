@@ -1,5 +1,6 @@
 import React from "react";
 import Cards from "./CardsView";
+import BestCombination from "./BestCombination";
 
 export default function(props) {
 
@@ -10,56 +11,31 @@ export default function(props) {
     }
 
     const playersElements = players.reduce((elements, player) => {
+        const infoClassName = player.isDealer ? "player-info dealer" : "player-info";
+        const playerClassName = player.isWinner ? "player winner" : "player";
 
-        const infoClassName = player.isDealer ? { className: "player-info dealer" } : {className: "player-info"};
-        const playerClassName = player.isWinner ? { className: "player winner" } : { className: "player" };
+        const newPlayerEl = (
+            <div key={player.name} className={playerClassName}>
+                <div className={infoClassName}>
+                    { player.inQueue ? player.name + " >>" : player.name }
+                </div>
 
-        const newPlayerEl = React.createElement(
-            "div",
-            playerClassName,
-            [
-                React.createElement(
-                    "div",
-                    infoClassName,
-                    player.inQueue ? player.name + " >>" : player.name
-                ),
-
-                React.createElement(
-                    "div",
-                    {className: "player-cards"},
-                    React.createElement(
-                        "ul",
-                        {className: ""},
+                <div className="player-cards">
+                    <div className="Cards">
                         <Cards cards={player.cards} />
-                    )
-                ),
+                    </div>
+                </div>
 
-                React.createElement(
-                    "div",
-                    {className: "player-bet"},
-                    player.bet
-                ),
+                <div className="player-bet">
+                    { player.bet }
+                </div>
 
-                React.createElement(
-                    "div",
-                    {className: "player-bestcombination"},
-                    React.createElement(
-                        "ul",
-                        {className: ""},
-                        [
-                            player.bestCombination ? "Best comb: " + player.bestCombination.name : "",
-                            player.bestCombination ? <Cards cards={player.bestCombination.cards} /> : "",
-                            player.bestCombination ? <Cards cards={player.bestCombination.highCards} /> : ""
-                        ]
-                    )
-                ),
+                <BestCombination player={player} />
 
-                React.createElement(
-                    "div",
-                    {className: "player-stack"},
-                    "stack: " + player.chipsStack
-                ),
-            ]
+                <div className="player-stack">
+                    stack: { player.chipsStack }
+                </div>
+            </div>
         );
 
         return [...elements, newPlayerEl];

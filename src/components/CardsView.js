@@ -5,7 +5,7 @@ function Card(props) {
     const cardFaceValue = props.card.faceValue;
 
     return (
-        <li>{cardSuit} {cardFaceValue}</li>
+        <div className="Card">{cardSuit} {cardFaceValue}</div>
     );
 }
 
@@ -17,7 +17,10 @@ function Cards(props) {
         return [];
     }
 
-    return cards.map(card => <Card card={card} />);
+    return cards.map((card) => {
+        const cardKey = `${card.suit}${card.faceValue}`;
+        return <Card key={cardKey} card={card} />
+    });
 }
 
 export default Cards;

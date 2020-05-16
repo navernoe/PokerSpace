@@ -11,11 +11,9 @@ export default class Poker {
         this.tableCards = params.tableCards || [];
     }
 
-
     setStatus(status) {
         this.status = status;
     }
-
 
     goNextStep(isFirst = false) {
         switch(this.status) {
@@ -36,7 +34,6 @@ export default class Poker {
         }
     }
 
-
     start() {
         this.clearTable();
         this.playersManager.resetGame();
@@ -48,9 +45,7 @@ export default class Poker {
         this.goNextStep(true);
     }
 
-
     preFlop(isFirst) {
-
         // блайнды и раздача только один раз
         if ( isFirst ) {
             this.playersManager.setBlinds();
@@ -67,9 +62,7 @@ export default class Poker {
         }
     }
 
-
     flop(isFirst) {
-
         if ( isFirst ) { // раздача только один раз
             this.playersManager.isCompletePot = false;
             const flopCardsCount = 3;
@@ -84,12 +77,9 @@ export default class Poker {
         } else {
             // this.playersManager.doBets();
         }
-
     }
 
-
     tern(isFirst) {
-
         if ( isFirst ) { // раздача только один раз
             this.playersManager.isCompletePot = false;
             const ternCardsCount = 1;
@@ -106,9 +96,7 @@ export default class Poker {
         }
     }
 
-
     river(isFirst) {
-
         if ( isFirst ) { // раздача только один раз
             this.playersManager.isCompletePot = false;
             const riverCardsCount = 1;
@@ -124,7 +112,6 @@ export default class Poker {
             // this.playersManager.doBets();
         }
     }
-
 
     clearTable() {
         this.tableCards = [];

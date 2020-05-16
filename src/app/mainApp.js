@@ -1,39 +1,6 @@
-// import http from "http";
-// import fs from "fs";
-// import path from "path";
 import WebSocket from "ws";
 import Poker from "./classes/Poker.js";
 import StorageManager from "./classes/StorageManager.js";
-
-/*  try to create own http-server
-
-http.createServer((req, res) => {
-    //console.log("___dirname ", __dirname);
-    const url = req.url;
-    //res.setHeader("Location", url);
-
-    //if ( url == "/" ) {
-        res.writeHead(200, {'Content-Type': 'text/html'});
-        const currentDir = path.resolve();
-        const absolutePath = path.join(currentDir, "/dist/index.html");
-        fs.createReadStream(absolutePath).pipe(res);
-        // fs.readFile(absolutePath, ( error, data ) => {
-
-        //     if ( error ) {
-        //         res.statusCode = 404;
-        //         res.end("Resourse not found!");
-        //     }
-        //     else {
-        //          res.writeHead(200, {'Content-Type': 'text/html'});
-        //         res.end(data);
-        //     }
-        // });
-   // } else {
-        //res.end();
-   //}
-}).listen(8080);
-
-*/
 
 const server = new WebSocket.Server({ port: 3000 });
 const gamesList = StorageManager.getGamesList();
@@ -96,6 +63,7 @@ server.broadcast = (data, gameId) => {
 server.on("connection", (ws) => {
     currentWS = ws;
     addNewPlayer();
+    updateGamesList();
 
     ws.on("message", (data) => {
         data = JSON.parse(data);
@@ -103,16 +71,7 @@ server.on("connection", (ws) => {
         const action = data.action;
         let poker = gamesList[gameId];
 
-        // if ( poker && !(poker instanceof Poker) ) {
-        //     poker = new Poker(poker);
-        //     gamesList[gameId] = poker;
-        // }
-
         switch( action ) {
-            case "updateGamesList": {
-                updateGamesList();
-                return;
-            }
             case "createNewGame": {
                 const newGameId = data.gameId;
                 createNewGame(newGameId);

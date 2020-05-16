@@ -1,4 +1,5 @@
 import React from "react";
+import Cards from "./CardsView";
 
 export default function(props) {
     const tableCards = props.tableCards || [];
@@ -8,22 +9,16 @@ export default function(props) {
         return null;
     }
 
-    const tableElements = tableCards.reduce((elements, card) => {
-        return [
-            ...elements,
-            React.createElement(
-                "div",
-                {className: "tableCard"},
-                `${card.suit} ${card.faceValue}`
-            )
-        ];
-    }, [
-        React.createElement(
-            "div",
-            {className: "pot"},
-            `POT: ${pot}`
-        )
-    ]);
+    const tableElements = (
+        <div className="Table">
+            <div className="pot">
+                POT: { pot }
+            </div>
+            <div className="Cards">
+                <Cards cards={tableCards} />
+            </div>
+        </div>
+    );
 
     return tableElements;
 }

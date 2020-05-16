@@ -1,68 +1,47 @@
 import _ from "lodash";
 
 export default class Deck {
-
     constructor(params) {
-
         params = params || {};
-
         this._cardsSuit = [
             "Hearts",
             "Spades",
             "Diamonds",
             "Clubs"
         ];
-
         this._cardsFaceValue = [
-            "Ace",
-            "King",
-            "Queen",
-            "Jack",
-            "10",
-            "9",
-            "8",
-            "7",
-            "6",
-            "5",
-            "4",
-            "3",
-            "2"
+            "Ace", "King", "Queen",
+            "Jack", "10", "9", "8",
+            "7", "6", "5", "4",
+            "3", "2"
         ];
-
         this.chosenCards = params.chosenCards || [];
         this.cards = params.cards || [];
     }
 
     // новая колода из всех возможных карт
     createNewDeck() {
-
         const newDeck = [];
 
         this._cardsFaceValue.forEach((faceValue) => {
-
             let weight;
 
             switch(faceValue) {
-                case "Ace":
-                    weight = 14; break;
-                case "King":
-                    weight = 13; break;
-                case "Queen":
-                    weight = 12; break;
-                case "Jack":
-                    weight = 11; break;
+                case "Ace": weight = 14; break;
+                case "King": weight = 13; break;
+                case "Queen": weight = 12; break;
+                case "Jack": weight = 11; break;
                 default:
                     weight = +faceValue;
                     break;
             }
 
             this._cardsSuit.forEach((suit) => { 
-
                 const newCard = {
                     faceValue,
                     suit,
                     weight
-                }
+                };
 
                 newDeck.push(newCard);
             });
@@ -93,6 +72,5 @@ export default class Deck {
     removeCardsFromDeck(cards) {
         _.pullAll(this.cards, cards);
     }
-
     
 }
