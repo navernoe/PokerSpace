@@ -22,12 +22,15 @@ export default function(props) {
 
                 <div className="player-cards">
                     <div className="Cards">
-                        <Cards cards={player.cards} />
+                        hand:
+                        ------------------
+                            <Cards cards={player.cards} />
+                        ------------------
                     </div>
                 </div>
 
                 <div className="player-bet">
-                    { player.bet }
+                    bet: { player.bet }
                 </div>
 
                 <BestCombination player={player} />

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import TableView from "./TableView";
 import PlayersView from "./PlayersView";
 import "../styles/App.css";
@@ -106,6 +107,9 @@ class GameView extends Component {
     render() {
         return (
             <div>
+                <Link to="/">
+                    НАЗАД
+                </Link>
                 <h1>PoHER</h1>
 
                 <button className = "startBtn" onClick = {this.startGame.bind(this)}>start</button>

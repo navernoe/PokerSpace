@@ -56,22 +56,25 @@ class App extends Component {
         <div>
 			<Router>
 			<div>
-				<nav>
-					<GamesList gamesList={this.getCurrentGamesList()} ws={this.ws}/>
-				</nav>
-
 				<Switch>
 					<Route
 						path="/game/:game_id"
-						render={(props)=> <Game ws={this.ws} {...props} />}
 					>
+						{(props)=> <Game ws={this.ws} {...props} />}
+					</Route>
+					<Route path="/">
+						<div>
+							<nav>
+								<GamesList gamesList={this.getCurrentGamesList()} ws={this.ws}/>
+							</nav>
+
+							<button className = "createBtn" onClick = {this.createNewGame.bind(this)} >Create New Game</button>
+						</div>
 					</Route>
 				</Switch>
 
 			</div>
 			</Router>
-
-        	<button className = "createBtn" onClick = {this.createNewGame.bind(this)} >Create New Game</button>
         </div>
       );
     }
